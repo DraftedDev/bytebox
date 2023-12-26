@@ -1,0 +1,27 @@
+[package]
+name = "bytebox"
+version = "0.1.0"
+edition = "2021"
+description = "Easy and performant data storage."
+keywords = ["storage", "msgpack", "serde"]
+categories = ["config", "encoding"]
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/drafteddev/bytebox"
+homepage = "https://github.com/drafteddev/bytebox"
+documentation = "https://docs.rs/bytebox"
+
+[dependencies]
+dirs = { version = "5.0.1", optional = true }
+serde = { version = "1", features = ["derive"] }
+rmp-serde = "1.1.2"
+
+[features]
+default = ["path"]
+# Contains common functionality for building app data paths.
+path = ["dep:dirs"]
+
+[[example]]
+name = "hello_world"
+path = "examples/hello_world.rs"
+required-features = ["path"]
