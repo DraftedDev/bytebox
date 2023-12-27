@@ -56,4 +56,31 @@ impl ByteBox {
         let file = File::open(&path).ok()?;
         rmp_serde::decode::from_read(file).ok()
     }
+
+    /// Removes the file with the given identifier.\
+    /// Refer to [fs::remove_file] for more information.
+    pub fn remove(&self, identifier: impl ToString) -> Option<()> {
+        let mut path = self.path.clone();
+        path.push(identifier.to_string());
+        path.set_extension("msgpack");
+
+        fs::remove_file(path).ok()?;
+
+        Some(())
+    }
+
+    /// Removes the directory and all its contents.\
+    /// Refer to [fs::remove_dir_all] for more information.
+    pub fn delete(&self) -> Option<()> {
+        fs::remove_dir_all(&self.path).ok()?;
+        Some(())
+    }
+
+    /// Moves the directory to the new path.\
+    /// Refer to [fs::rename] for more information.
+    pub fn move_to(&mut self, new_path: impl AsRef<Path>) -> Option<()> {
+        fs::rename(&self.path, new_path.as_ref()).ok()?;
+        self.path = new_path.as_ref().to_path_buf();
+        Some(())
+    }
 }

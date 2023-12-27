@@ -15,6 +15,7 @@ struct MyBox {
 fn main() {
     let bytebox = ByteBox::default(APP_NAME).expect("Could not create ByteBox");
 
+    // write data container to file
     bytebox
         .set(
             BOX_NAME,
@@ -27,9 +28,13 @@ fn main() {
         )
         .expect("Could not write to ByteBox");
 
+    // retrieve data container
     let my_box = bytebox
         .get::<MyBox>(BOX_NAME)
         .expect("Could not read from ByteBox");
+
+    // cleanup bytebox
+    bytebox.delete();
 
     if my_box.greet {
         println!("Hello, {}! You are {} years old.", my_box.name, my_box.age);
