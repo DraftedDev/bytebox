@@ -1,8 +1,8 @@
 [package]
 name = "bytebox"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
-description = "Easy and performant data storage."
+description = "Easy and performant data storage inspired by Flutter's shared_preferences."
 keywords = ["storage", "msgpack", "serde"]
 categories = ["config", "encoding"]
 license = "MIT OR Apache-2.0"
