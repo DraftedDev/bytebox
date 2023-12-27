@@ -15,11 +15,13 @@ documentation = "https://docs.rs/bytebox"
 dirs = { version = "5.0.1", optional = true }
 serde = { version = "1", features = ["derive"] }
 rmp-serde = "1.1.2"
+bevy = { version = "0.12.1", optional = true, default-features = false }
 
 [features]
 default = ["path"]
 # Contains common functionality for building app data paths.
 path = ["dep:dirs"]
+bevy = ["dep:bevy"]
 
 [[example]]
 name = "hello_world"

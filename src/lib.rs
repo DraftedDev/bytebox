@@ -9,3 +9,7 @@ pub mod byte_box;
 /// Uses [dirs] internally.
 #[cfg(feature = "path")]
 pub mod path;
+
+/// Contains the [ByteboxPlugin](bevy::ByteboxPlugin) plugin and other stuff.
+#[cfg(feature = "bevy")]
+pub mod bevy;

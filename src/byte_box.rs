@@ -6,6 +6,7 @@ use std::path::{Path, PathBuf};
 /// The core struct of the library.\
 /// Contains the path to the directory where the data is stored and implements many useful functions.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Ord, PartialOrd)]
+#[cfg_attr(feature = "serde_support", derive(bevy::prelude::Resource))]
 pub struct ByteBox {
     /// The path to the directory where the data is stored.
     path: PathBuf,
