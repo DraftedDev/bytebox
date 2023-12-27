@@ -20,8 +20,8 @@ impl ByteboxPlugin {
 
 impl Plugin for ByteboxPlugin {
     fn build(&self, app: &mut App) {
-        for bytebox in self.0 {
-            app.insert_resource(bytebox);
+        for bytebox in &self.0 {
+            app.insert_resource(bytebox.clone());
         }
     }
 
