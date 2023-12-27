@@ -17,6 +17,9 @@ serde = { version = "1", features = ["derive"] }
 rmp-serde = "1.1.2"
 bevy = { version = "0.12.1", optional = true, default-features = false }
 
+[dev-dependencies]
+bevy = { version = "0.12.1", default-features = false }
+
 [features]
 default = ["path"]
 # Contains common functionality for building app data paths.

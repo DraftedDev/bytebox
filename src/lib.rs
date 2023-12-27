@@ -13,3 +13,6 @@ pub mod path;
 /// Contains the [ByteboxPlugin](bevy::ByteboxPlugin) plugin and other stuff.
 #[cfg(feature = "bevy")]
 pub mod bevy;
+
+#[cfg(test)]
+mod tests;
