@@ -15,3 +15,8 @@ To use ByteBox in your Rust project, run: ``cargo add bytebox`` or just add the 
 
 ## Examples 📝
 - [Hello World](examples/hello_world.rs)
+
+## Bevy Integration
+You can easily use ByteBox in your Bevy app by adding the `bevy` feature and registering the `ByteboxPlugin` plugin.
+
+Add your boxes by calling `ByteboxPlugin::new().with(my_box)` and access your boxes via the `Res<ByteBox>` type in your systems.
