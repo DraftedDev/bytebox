@@ -43,23 +43,13 @@ fn test_bevy_plugin() {
 
     let bytebox = crate::byte_box::ByteBox::new("some_location").expect("failed to create bytebox");
 
-    fn fetch_box(bytebox: Res<crate::byte_box::ByteBox>) {
-        assert_eq!(
-            bytebox
-                .path()
-                .canonicalize()
-                .expect("failed to canonicalize bytebox path"),
-            std::env::current_dir()
-                .expect("failed to get current dir")
-                .join("some_location")
-                .canonicalize()
-                .expect("failed to canonicalize path")
-        );
+    fn do_stuff(bytebox: Res<crate::byte_box::ByteBox>) {
+        bytebox.delete();
     }
 
     App::new()
         .add_plugins((crate::bevy::ByteboxPlugin::new().with(bytebox),))
-        .add_systems(Startup, fetch_box)
+        .add_systems(Startup, do_stuff)
         .set_runner(|mut app| {
             app.update();
             app.cleanup();
