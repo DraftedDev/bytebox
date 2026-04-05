@@ -1,7 +1,7 @@
-use bytebox::{byte_box::ByteBox, Deserialize, Serialize};
+use std::path::PathBuf;
 
-static APP_NAME: &str = "hello_world";
-static BOX_NAME: &str = "my awesome box";
+use bytebox::ByteBox;
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 struct MyBox {
@@ -11,34 +11,37 @@ struct MyBox {
     age: i32,
 }
 
-#[cfg(feature = "default")]
+impl ByteBox<true> for MyBox {
+    fn path(&self) -> PathBuf {
+        PathBuf::from("my_box.bin")
+    }
+}
+
 fn main() {
-    let bytebox = ByteBox::default(APP_NAME).expect("Could not create ByteBox");
+    let my_box = MyBox {
+        special_number: 12,
+        greet: true,
+        name: "John".to_string(),
+        age: 19,
+    };
 
-    // write data container to file
-    bytebox
-        .set(
-            BOX_NAME,
-            &MyBox {
-                special_number: 12,
-                greet: true,
-                name: "John".to_string(),
-                age: 19,
-            },
-        )
-        .expect("Could not write to ByteBox");
+    my_box.save().expect("Could not save ByteBox");
 
-    // retrieve data container
-    let my_box = bytebox
-        .get::<MyBox>(BOX_NAME)
-        .expect("Could not read from ByteBox");
+    let mut loaded_box = MyBox {
+        special_number: 0,
+        greet: false,
+        name: String::new(),
+        age: 0,
+    };
 
-    // cleanup bytebox
-    bytebox.delete();
+    loaded_box.load().expect("Could not load ByteBox");
 
-    if my_box.greet {
-        println!("Hello, {}! You are {} years old.", my_box.name, my_box.age);
+    if loaded_box.greet {
+        println!(
+            "Hello, {}! You are {} years old.",
+            loaded_box.name, loaded_box.age
+        );
     }
 
-    println!("The special number is {}", my_box.special_number);
+    println!("The special number is {}", loaded_box.special_number);
 }
