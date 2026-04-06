@@ -15,7 +15,7 @@ documentation = "https://docs.rs/bytebox"
 bitcode = { version = "0.6.9", features = ["serde"] }
 serde = { version = "1.0", features = ["derive"] }
 chacha20poly1305 = "0.10.1"
-async-trait = "0.1.89"
+async-trait = { version = "0.1.89", optional = true }
 async-fs = { version = "2.2.0", optional = true }
 tokio = { version = "1.51.0", features = ["fs"], optional = true }
 
@@ -28,10 +28,13 @@ keyring = { version = "3.6.3", features = ["apple-native"] }
 [target.'cfg(target_os = "windows")'.dependencies]
 keyring = { version = "3.6.3", features = ["windows-native"] }
 
+[build-dependencies]
+cfg_aliases = "0.2.1"
+
 [features]
 default = []
-async-fs = ["dep:async-fs"]
-tokio = ["dep:tokio"]
+async-fs = ["async-trait", "dep:async-fs"]
+tokio = ["async-trait", "dep:tokio"]
 
 [[example]]
 name = "hello_world"

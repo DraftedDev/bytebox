@@ -21,7 +21,7 @@ pub mod secure;
 /// This is a variant of [ByteBox] that can always be constructed without a `self`.
 ///
 /// The `SECURE` const parameter determines whether encryption is used.
-#[async_trait::async_trait]
+#[cfg_attr(async_api, async_trait::async_trait)]
 pub trait GlobalByteBox<const SECURE: bool>: Serialize + for<'de> Deserialize<'de> {
     /// Returns the path to the bytebox file.
     fn path() -> PathBuf;
@@ -41,7 +41,7 @@ pub trait GlobalByteBox<const SECURE: bool>: Serialize + for<'de> Deserialize<'d
     /// Saves the bytebox to disk asynchronously.
     ///
     /// This will create a new file if one does not already exist.
-    #[cfg(any(feature = "async-fs", feature = "tokio"))]
+    #[cfg(async_api)]
     async fn save_async(&self) -> Result<(), Error> {
         let path = Self::path();
         let bytes = self.encode()?;

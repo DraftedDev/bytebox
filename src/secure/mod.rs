@@ -6,11 +6,11 @@ use chacha20poly1305::{
 use crate::error::Error;
 
 /// A [KeyStore] implementation that uses [keyring] on linux, macOS, and Windows.
-#[cfg(any(target_os = "linux", target_os = "macos", target_os = "windows"))]
+#[cfg(use_keyring)]
 pub mod keyring;
 
 /// The default [KeyStore] implementation for this platform.
-#[cfg(any(target_os = "linux", target_os = "macos", target_os = "windows"))]
+#[cfg(use_keyring)]
 pub type PlatformKeyStore = keyring::KeyStore;
 
 const NONCE_SIZE: usize = 24;
