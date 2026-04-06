@@ -67,7 +67,7 @@ pub trait GlobalByteBox<const SECURE: bool>: Serialize + for<'de> Deserialize<'d
     }
 
     /// Loads the bytebox from disk asynchronously.
-    #[cfg(any(feature = "async-fs", feature = "tokio"))]
+    #[cfg(async_api)]
     async fn load_async() -> Result<Self, Error>
     where
         Self: Sized,
@@ -75,10 +75,10 @@ pub trait GlobalByteBox<const SECURE: bool>: Serialize + for<'de> Deserialize<'d
         let path = Self::path();
 
         #[cfg(feature = "async-fs")]
-        let bytes = async_fs::read(&path).await?;
+        let bytes: Vec<u8> = async_fs::read(&path).await?;
 
         #[cfg(feature = "tokio")]
-        let bytes = tokio::fs::read(&path).await?;
+        let bytes: Vec<u8> = tokio::fs::read(&path).await?;
 
         Self::decode(&bytes)
     }
@@ -113,6 +113,25 @@ pub trait GlobalByteBox<const SECURE: bool>: Serialize + for<'de> Deserialize<'d
             Ok(bitcode::deserialize(bytes)?)
         }
     }
+
+    /// Deletes the bytebox file from disk.
+    fn delete() -> Result<(), Error> {
+        std::fs::remove_file(Self::path())?;
+
+        Ok(())
+    }
+
+    /// Deletes the bytebox file from disk asynchronously.
+    #[cfg(async_api)]
+    async fn delete_async(&self) -> Result<(), Error> {
+        #[cfg(feature = "async-fs")]
+        async_fs::remove_file(Self::path()).await?;
+
+        #[cfg(feature = "tokio")]
+        tokio::fs::remove_file(Self::path()).await?;
+
+        Ok(())
+    }
 }
 
 /// A data store that can optionally use encryption for secure storage.
@@ -120,6 +139,7 @@ pub trait GlobalByteBox<const SECURE: bool>: Serialize + for<'de> Deserialize<'d
 /// Unlike [GlobalByteBox], this trait is not global and requires a `self` to be loaded.
 ///
 /// The `SECURE` const parameter determines whether encryption is used.
+#[cfg_attr(async_api, async_trait::async_trait)]
 pub trait ByteBox<const SECURE: bool>: Serialize + for<'de> Deserialize<'de> {
     /// Returns the path to the bytebox file.
     fn path(&self) -> PathBuf;
@@ -140,6 +160,22 @@ pub trait ByteBox<const SECURE: bool>: Serialize + for<'de> Deserialize<'de> {
     fn load(&mut self) -> Result<(), Error> {
         let path = self.path();
         let bytes = std::fs::read(&path)?;
+
+        *self = self.decode(&bytes)?;
+
+        Ok(())
+    }
+
+    /// Loads the bytebox from disk asynchronously.
+    #[cfg(async_api)]
+    async fn load_async(&mut self) -> Result<(), Error> {
+        let path = self.path();
+
+        #[cfg(feature = "async-fs")]
+        let bytes: Vec<u8> = async_fs::read(&path).await?;
+
+        #[cfg(feature = "tokio")]
+        let bytes: Vec<u8> = tokio::fs::read(&path).await?;
 
         *self = self.decode(&bytes)?;
 
@@ -175,5 +211,39 @@ pub trait ByteBox<const SECURE: bool>: Serialize + for<'de> Deserialize<'de> {
         } else {
             Ok(bitcode::deserialize(bytes)?)
         }
+    }
+
+    /// Deletes the bytebox file from disk.
+    fn delete(&self) -> Result<(), Error> {
+        std::fs::remove_file(self.path())?;
+
+        Ok(())
+    }
+
+    /// Saves the bytebox to disk asynchronously.
+    #[cfg(async_api)]
+    async fn save_async(&self) -> Result<(), Error> {
+        let path = self.path();
+        let bytes = self.encode()?;
+
+        #[cfg(feature = "async-fs")]
+        async_fs::write(&path, bytes).await?;
+
+        #[cfg(feature = "tokio")]
+        tokio::fs::write(&path, bytes).await?;
+
+        Ok(())
+    }
+
+    /// Deletes the bytebox file from disk asynchronously.
+    #[cfg(async_api)]
+    async fn delete_async(&self) -> Result<(), Error> {
+        #[cfg(feature = "async-fs")]
+        async_fs::remove_file(self.path()).await?;
+
+        #[cfg(feature = "tokio")]
+        tokio::fs::remove_file(self.path()).await?;
+
+        Ok(())
     }
 }

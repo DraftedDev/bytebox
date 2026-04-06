@@ -44,4 +44,6 @@ fn main() {
     }
 
     println!("The special number is {}", loaded_box.special_number);
+
+    loaded_box.delete().unwrap();
 }
