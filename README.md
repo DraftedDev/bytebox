@@ -8,6 +8,11 @@
 - **Ease-of-use** - Use [serde](https://crates.io/crates/serde) and a super-easy API to store and retrieve your data.
 - **Secure** - Secure your data using the XChaCha20Poly1305 algorithm without the hassle of storing and retrieving encryption keys manually.
 
+## Supported Platforms
+- [x] Desktop: Windows, MacOS, Linux.
+- [ ] Mobile: iOS, Android.
+- [ ] Web
+
 ## Getting Started 🚀
 
 To use ByteBox in your Rust project, run: ``cargo add bytebox`` or just add the latest version to your `Cargo.toml`.
