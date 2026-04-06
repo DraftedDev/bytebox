@@ -23,7 +23,7 @@ const NONCE_SIZE: usize = 24;
 pub static KEY_STORE: OnceLock<Box<dyn KeyStore>> = OnceLock::new();
 
 /// Returns the set [KeyStore] implementation, initializing it with the default if necessary.
-pub fn get_key_store<'a>() -> &'a Box<dyn KeyStore> {
+pub fn get_key_store<'a>() -> &'a dyn KeyStore {
     KEY_STORE.get_or_init(default_key_store)
 }
 
@@ -31,8 +31,9 @@ pub fn get_key_store<'a>() -> &'a Box<dyn KeyStore> {
 pub fn default_key_store() -> Box<dyn KeyStore> {
     #[cfg(use_keyring)]
     {
-        return Box::new(keyring::KeyStore);
+        Box::new(keyring::KeyStore)
     }
+
     #[cfg(not(use_keyring))]
     {
         panic!("Platform not supported!");
@@ -107,4 +108,14 @@ pub trait KeyStore: Send + Sync + 'static {
 
     /// Sets the key with the given name.
     fn set_key(&self, name: &str, key: Vec<u8>) -> Result<(), Error>;
+}
+
+impl KeyStore for Box<dyn KeyStore> {
+    fn get_key(&self, name: &str) -> Result<Option<Vec<u8>>, Error> {
+        (**self).get_key(name)
+    }
+
+    fn set_key(&self, name: &str, key: Vec<u8>) -> Result<(), Error> {
+        (**self).set_key(name, key)
+    }
 }

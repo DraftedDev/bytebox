@@ -9,8 +9,8 @@
 - **Secure** - Secure your data using the XChaCha20Poly1305 algorithm without the hassle of storing and retrieving encryption keys manually.
 
 ## Supported Platforms
-- [x] Desktop: Windows, MacOS, Linux.
-- [ ] Mobile: iOS, Android.
+- [x] Desktop: Windows, MacOS, Linux, FreeBSD, OpenBSD.
+- [x] Mobile: iOS (Android work-in-progress).
 - [ ] Web
 
 ## Getting Started 🚀
