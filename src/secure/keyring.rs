@@ -6,7 +6,7 @@ use crate::secure::namespace;
 pub struct KeyStore;
 
 impl super::KeyStore for KeyStore {
-    fn get_key(name: &str) -> Result<Option<Vec<u8>>, crate::error::Error> {
+    fn get_key(&self, name: &str) -> Result<Option<Vec<u8>>, crate::error::Error> {
         let entry = Entry::new(namespace()?.as_str(), name)?;
 
         match entry.get_secret() {
@@ -16,7 +16,7 @@ impl super::KeyStore for KeyStore {
         }
     }
 
-    fn set_key(name: &str, key: Vec<u8>) -> Result<(), crate::error::Error> {
+    fn set_key(&self, name: &str, key: Vec<u8>) -> Result<(), crate::error::Error> {
         let entry = Entry::new(namespace()?.as_str(), name)?;
 
         entry.set_secret(&key)?;

@@ -1,3 +1,5 @@
+use std::sync::OnceLock;
+
 use chacha20poly1305::{
     aead::{AeadMut, Key, Nonce, OsRng},
     AeadCore, KeyInit, XChaCha20Poly1305,
@@ -14,6 +16,28 @@ pub mod keyring;
 pub type PlatformKeyStore = keyring::KeyStore;
 
 const NONCE_SIZE: usize = 24;
+
+/// The global [KeyStore] instance.
+///
+/// Normally initialized with the default implementation on first access.
+pub static KEY_STORE: OnceLock<Box<dyn KeyStore>> = OnceLock::new();
+
+/// Returns the set [KeyStore] implementation, initializing it with the default if necessary.
+pub fn get_key_store<'a>() -> &'a Box<dyn KeyStore> {
+    KEY_STORE.get_or_init(default_key_store)
+}
+
+/// Returns the default [KeyStore] implementation for this platform.
+pub fn default_key_store() -> Box<dyn KeyStore> {
+    #[cfg(use_keyring)]
+    {
+        return Box::new(keyring::KeyStore);
+    }
+    #[cfg(not(use_keyring))]
+    {
+        panic!("Platform not supported!");
+    }
+}
 
 /// Encrypts the given data using the provided key.
 pub fn encrypt(data: &[u8], key: Vec<u8>) -> Result<Vec<u8>, Error> {
@@ -64,23 +88,23 @@ pub fn namespace() -> Result<String, Error> {
 }
 
 /// A trait for storing and retrieving keys.
-pub trait KeyStore {
+pub trait KeyStore: Send + Sync + 'static {
     /// Returns the key with the given name, generating a new one if none exists.
-    fn get_key_or_generate(name: &str) -> Result<Vec<u8>, Error> {
-        let key = Self::get_key(name)?;
+    fn get_key_or_generate(&self, name: &str) -> Result<Vec<u8>, Error> {
+        let key = self.get_key(name)?;
 
         if let Some(key) = key {
             Ok(key)
         } else {
             let key = generate_key();
-            Self::set_key(name, key.to_vec())?;
+            self.set_key(name, key.to_vec())?;
             Ok(key.to_vec())
         }
     }
 
     /// Returns the key with the given name, if one exists.
-    fn get_key(name: &str) -> Result<Option<Vec<u8>>, Error>;
+    fn get_key(&self, name: &str) -> Result<Option<Vec<u8>>, Error>;
 
     /// Sets the key with the given name.
-    fn set_key(name: &str, key: Vec<u8>) -> Result<(), Error>;
+    fn set_key(&self, name: &str, key: Vec<u8>) -> Result<(), Error>;
 }

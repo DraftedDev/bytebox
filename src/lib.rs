@@ -5,10 +5,7 @@ use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    error::Error,
-    secure::{KeyStore, PlatformKeyStore},
-};
+use crate::{error::Error, secure::get_key_store};
 
 /// Contains the [error::Error] type.
 pub mod error;
@@ -91,7 +88,7 @@ pub trait GlobalByteBox<const SECURE: bool>: Serialize + for<'de> Deserialize<'d
             let name = format!("{}", Self::path().display());
 
             let bytes = bitcode::serialize(self)?;
-            let key = PlatformKeyStore::get_key_or_generate(&name)?;
+            let key = get_key_store().get_key_or_generate(&name)?;
 
             secure::encrypt(&bytes, key)
         } else {
@@ -105,7 +102,7 @@ pub trait GlobalByteBox<const SECURE: bool>: Serialize + for<'de> Deserialize<'d
     fn decode(bytes: &[u8]) -> Result<Self, Error> {
         if SECURE {
             let name = Self::path().to_string_lossy().to_string();
-            let key = PlatformKeyStore::get_key_or_generate(&name)?;
+            let key = get_key_store().get_key_or_generate(&name)?;
             let decrypted = secure::decrypt(bytes.to_vec(), key)?;
 
             Ok(bitcode::deserialize(&decrypted)?)
@@ -189,7 +186,7 @@ pub trait ByteBox<const SECURE: bool>: Serialize + for<'de> Deserialize<'de> {
         if SECURE {
             let name = format!("{}", self.path().display());
             let bytes = bitcode::serialize(self)?;
-            let key = PlatformKeyStore::get_key_or_generate(&name)?;
+            let key = get_key_store().get_key_or_generate(&name)?;
 
             secure::encrypt(&bytes, key)
         } else {
@@ -204,7 +201,7 @@ pub trait ByteBox<const SECURE: bool>: Serialize + for<'de> Deserialize<'de> {
         if SECURE {
             let name = format!("{}", self.path().display());
 
-            let key = PlatformKeyStore::get_key_or_generate(&name)?;
+            let key = get_key_store().get_key_or_generate(&name)?;
             let decrypted = secure::decrypt(bytes.to_vec(), key)?;
 
             Ok(bitcode::deserialize(&decrypted)?)
