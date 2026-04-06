@@ -41,12 +41,16 @@ pub trait GlobalByteBox<const SECURE: bool>: Serialize + for<'de> Deserialize<'d
     /// Saves the bytebox to disk asynchronously.
     ///
     /// This will create a new file if one does not already exist.
-    #[cfg(feature = "async-fs")]
+    #[cfg(any(feature = "async-fs", feature = "tokio"))]
     async fn save_async(&self) -> Result<(), Error> {
         let path = Self::path();
         let bytes = self.encode()?;
 
+        #[cfg(feature = "async-fs")]
         async_fs::write(&path, bytes).await?;
+
+        #[cfg(feature = "tokio")]
+        tokio::fs::write(&path, bytes).await?;
 
         Ok(())
     }
@@ -63,13 +67,18 @@ pub trait GlobalByteBox<const SECURE: bool>: Serialize + for<'de> Deserialize<'d
     }
 
     /// Loads the bytebox from disk asynchronously.
-    #[cfg(feature = "async-fs")]
+    #[cfg(any(feature = "async-fs", feature = "tokio"))]
     async fn load_async() -> Result<Self, Error>
     where
         Self: Sized,
     {
         let path = Self::path();
+
+        #[cfg(feature = "async-fs")]
         let bytes = async_fs::read(&path).await?;
+
+        #[cfg(feature = "tokio")]
+        let bytes = tokio::fs::read(&path).await?;
 
         Self::decode(&bytes)
     }
